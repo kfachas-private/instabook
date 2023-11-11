@@ -1,0 +1,34 @@
+name: app
+description: A Very Good Project created by Very Good CLI.
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  auto_route: ^7.8.4
+  bloc: ^8.1.2
+  build_runner: ^2.4.6
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.1.3
+  flutter_localizations:
+    sdk: flutter
+  i18n:
+    path: i18n
+  design_system:
+    path: design_system
+  auto_route_generator: ^7.3.2
+  analyzer: ^5.13.0
+
+dev_dependencies:
+  bloc_test: ^9.1.5
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.1
+  very_good_analysis: ^5.1.0
+
+flutter:
+  uses-material-design: true
+  generate: true

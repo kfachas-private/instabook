@@ -1,0 +1,78 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "postgresqlExtensions", "views"]
+  binaryTargets   = ["native", "linux-arm64-openssl-1.1.x", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = []
+  schemas    = ["config", "history", "public"]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Admin {
+  createdTs DateTime @default(now()) @map("created_ts") @db.Timestamptz(6)
+  updatedTs DateTime @default(now()) @map("updated_ts") @db.Timestamptz(6)
+  version   Int      @default(0)
+  id        String   @id(map: "PK_e3b38270c97a854c48d2e80874e") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @unique(map: "UQ_2b901dd818a2a6486994d915a68") @map("user_id") @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_2b901dd818a2a6486994d915a68")
+  Slot      Slot[]
+
+  @@map("admins")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Slot {
+  createdTs           DateTime  @default(now()) @map("created_ts") @db.Timestamptz(6)
+  updatedTs           DateTime  @default(now()) @map("updated_ts") @db.Timestamptz(6)
+  version             Int       @default(0)
+  id                  String    @id(map: "PK_8b553bb1941663b63fd38405e42") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  startTs             DateTime  @map("start_ts") @db.Timestamptz(6)
+  endTs               DateTime  @map("end_ts") @db.Timestamptz(6)
+  breakHoursMinutes   Int       @map("break_hours_minutes")
+  breakHoursStartTs   DateTime? @map("break_hours_start_ts") @db.Timestamptz(6)
+  paidBreak           Boolean   @default(false) @map("paid_break")
+  isFlexible          Boolean   @map("is_flexible")
+  workerBoosterPrice  Float?    @map("worker_booster_price") @db.Real
+  companyBoosterPrice Float?    @map("company_booster_price") @db.Real
+  isOpen              Boolean   @default(true) @map("is_open")
+  isArchived          Boolean   @default(false) @map("is_archived")
+  missionTypeId       String    @map("mission_type_id") @db.Uuid
+  shiftId             String?   @unique(map: "REL_6f47c5275f02994a1a3e1fb618") @map("shift_id") @db.Uuid
+  companyId           String    @map("company_id") @db.Uuid
+  editorId            String?   @map("editor_id") @db.Uuid
+  admins              Admin?    @relation(fields: [editorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_1ccec0941a280c175cc009d914a")
+
+  @@map("slots")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model User {
+  createdTs   DateTime @default(now()) @map("created_ts") @db.Timestamptz(6)
+  updatedTs   DateTime @default(now()) @map("updated_ts") @db.Timestamptz(6)
+  version     Int      @default(0)
+  id          String   @id(map: "PK_a3ffb1c0c8416b9fc6f907b7433") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName   String   @map("first_name") @db.VarChar(255)
+  lastName    String   @map("last_name") @db.VarChar(255)
+  email       String   @unique(map: "UQ_97672ac88f789774dd47f7c8be3") @db.VarChar(255)
+  authId      String   @unique(map: "UQ_f8ecddfc60e9d1c2719ab17fe6a") @db.VarChar(128)
+  phoneNumber String?  @unique(map: "UQ_17d1817f241f10a3dbafb169fd2") @map("phone_number") @db.VarChar(64)
+  admin       Admin?
+
+  @@map("users")
+  @@schema("public")
+}
+
+enum contract_documents_status_enum {
+  pending
+  approved
+  rejected
+  cancelled
+
+  @@schema("public")
+}
